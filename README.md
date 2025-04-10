@@ -72,6 +72,19 @@ eas build --platform ios
 eas submit --platform ios
 ```
 
+### Using EAS Workflows
+
+This project supports automating builds, submissions, and updates using EAS Workflows. For detailed information, see the [EAS Workflows documentation](./EAS_WORKFLOWS.md).
+
+Examples:
+```bash
+# Run iOS production build workflow
+eas workflow:run build-ios-production.yml
+
+# Run test and build workflow
+eas workflow:run test-and-build.yml
+```
+
 ## Supabase Edge Functions
 
 This project uses Supabase Edge Functions for handling Stripe checkout and webhooks:

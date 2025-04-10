@@ -1,0 +1,13 @@
+name: Update Production
+
+on:
+  push:
+    branches: ['production']
+
+jobs:
+  update:
+    name: Update Production
+    type: update
+    params:
+      channel: production
+      message: "New production update"

@@ -1,0 +1,29 @@
+name: Test and Build
+
+on:
+  pull_request:
+    branches: ['main']
+
+jobs:
+  test:
+    name: Run Tests
+    type: test
+    script: |
+      npm ci
+      npm test
+  
+  build_ios:
+    name: Build iOS
+    needs: test
+    type: build
+    params:
+      platform: ios
+      profile: preview
+  
+  build_android:
+    name: Build Android
+    needs: test
+    type: build
+    params:
+      platform: android
+      profile: preview
