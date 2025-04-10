@@ -110,11 +110,20 @@ export default function SubscriptionScreen() {
       }
 
       if (url) {
+        console.log('Redirecting to subscription checkout:', url);
         if (Platform.OS === 'web') {
           window.location.href = url;
         } else {
-          await Linking.openURL(url);
+          try {
+            await Linking.openURL(url);
+          } catch (linkError) {
+            console.error('Error opening checkout URL:', linkError);
+            setError('Unable to open subscription page. Please try again.');
+          }
         }
+      } else {
+        console.error('No checkout URL returned from server');
+        setError('Failed to create subscription checkout. Please try again.');
       }
     } catch (err) {
       console.error('Error creating checkout session:', err);

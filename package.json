@@ -26,6 +26,7 @@
     "expo-splash-screen": "^0.29.21",
     "expo-status-bar": "^2.0.1",
     "expo-system-ui": "^4.0.7",
+    "lucide-react-native": "^0.487.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.6",
@@ -35,11 +36,13 @@
     "react-native-screens": "^4.4.0",
     "react-native-svg": "^15.11.1",
     "react-native-url-polyfill": "^2.0.0",
-    "react-native-web": "^0.19.13"
+    "react-native-web": "^0.19.13",
+    "stripe": "^18.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~18.3.12",
+    "@types/stripe": "^8.0.416",
     "typescript": "^5.3.3"
   }
 }

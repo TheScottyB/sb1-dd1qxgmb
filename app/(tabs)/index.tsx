@@ -72,15 +72,26 @@ export default function HomeScreen() {
         return;
       }
 
-      const { url } = data;
+      const { url, sessionId } = data;
+      
+      console.log('Received checkout session data:', { url, sessionId });
+      
       if (url) {
         if (Platform.OS === 'web') {
+          console.log('Redirecting to Stripe checkout on web:', url);
           window.location.href = url;
         } else {
-          await Linking.openURL(url);
+          console.log('Opening Stripe checkout URL on mobile:', url);
+          try {
+            await Linking.openURL(url);
+          } catch (linkError) {
+            console.error('Error opening URL:', linkError);
+            setError('Unable to open payment page. Please try again.');
+          }
         }
       } else {
-        setError('Failed to create checkout session');
+        console.error('No checkout URL returned from server');
+        setError('Failed to create checkout session. Please try again.');
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
