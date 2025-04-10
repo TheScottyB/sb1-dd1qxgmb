@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Platform, Linking, ActivityIndicator, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Platform, Linking, ActivityIndicator, SafeAreaView, ScrollView, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
 import { products } from '@/src/stripe-config';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Flower } from '@/src/components/Flower';
 
 type SubscriptionStatus = {
   subscription_status: string;
@@ -148,13 +149,24 @@ export default function SubscriptionScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.scrollView}>
+      <LinearGradient
+        colors={['#FFEBCD', '#FFF8E1']}
+        style={styles.background}
+      />
+      
+      {/* Decorative flowers */}
+      <View style={styles.decorativeFlowers}>
+        <Flower type="sunflower" size={80} position={{ x: 50, y: 80 }} />
+        <Flower type="rose" size={70} position={{ x: 320, y: 150 }} />
+        <Flower type="daisy" size={60} position={{ x: 280, y: 70 }} />
+        <Flower type="tulip" size={65} position={{ x: 120, y: 170 }} />
+      </View>
+      
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.container}>
-          <LinearGradient
-            colors={['#ffffff', '#f5f7fa']}
-            style={styles.gradientBackground}>
+          <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Text style={styles.title}>Your Subscription</Text>
+              <Text style={styles.title}>Premium Subscription</Text>
             </View>
             
             {loadingInfo ? (
@@ -176,54 +188,64 @@ export default function SubscriptionScreen() {
                   </View>
                 )}
                 
+                <View style={styles.statusBanner}>
+                  <Text style={styles.statusLabel}>Status:</Text>
+                  <Text style={[styles.statusValue, isSubscribed ? styles.activeText : styles.inactiveText]}>
+                    {isSubscribed ? 'Active' : 'Not Subscribed'}
+                  </Text>
+                </View>
+                
                 <View style={styles.planCard}>
+                  <View style={styles.flowerIconContainer}>
+                    <Flower type="sunflower" size={50} />
+                  </View>
+                  
                   <View style={styles.planHeaderContainer}>
                     <Text style={styles.planName}>{sandbox.name}</Text>
                     <View style={styles.priceBadge}>
                       <Text style={styles.priceBadgeText}>{sandbox.price}</Text>
                     </View>
                   </View>
+                  
                   <Text style={styles.planDescription}>{sandbox.description}</Text>
                   
                   <View style={styles.benefitsList}>
                     <View style={styles.benefitItem}>
                       <Text style={styles.benefitCheck}>✓</Text>
-                      <Text style={styles.benefitText}>Premium Content Access</Text>
+                      <Text style={styles.benefitText}>Premium Flower Colors</Text>
                     </View>
                     <View style={styles.benefitItem}>
                       <Text style={styles.benefitCheck}>✓</Text>
-                      <Text style={styles.benefitText}>Ad-Free Experience</Text>
+                      <Text style={styles.benefitText}>Plant Up to 50 Flowers</Text>
                     </View>
                     <View style={styles.benefitItem}>
                       <Text style={styles.benefitCheck}>✓</Text>
-                      <Text style={styles.benefitText}>Priority Support</Text>
+                      <Text style={styles.benefitText}>Special Flower Varieties</Text>
                     </View>
                   </View>
                 </View>
 
-                <View style={styles.statusCard}>
-                  <Text style={styles.statusTitle}>Subscription Status</Text>
-                  
-                  <View style={styles.infoItem}>
-                    <Text style={styles.label}>Current Plan:</Text>
-                    <Text style={styles.value}>
-                      {isSubscribed ? (
-                        <Text style={styles.activeStatus}>{currentPlan}</Text>
-                      ) : (
-                        <Text style={styles.inactiveStatus}>No active subscription</Text>
-                      )}
-                    </Text>
-                  </View>
-
-                  {isSubscribed && subscription?.current_period_end && (
+                {isSubscribed && (
+                  <View style={styles.statusCard}>
+                    <Text style={styles.statusTitle}>Subscription Details</Text>
+                    
                     <View style={styles.infoItem}>
-                      <Text style={styles.label}>Renews on:</Text>
+                      <Text style={styles.label}>Current Plan:</Text>
                       <Text style={styles.value}>
-                        {formatDate(subscription.current_period_end)}
+                        <Text style={styles.activeStatus}>{currentPlan}</Text>
                       </Text>
                     </View>
-                  )}
-                </View>
+
+                    {subscription?.current_period_end && (
+                      <View style={styles.infoItem}>
+                        <Text style={styles.label}>Renews on:</Text>
+                        <Text style={styles.value}>
+                          {formatDate(subscription.current_period_end)}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
 
                 {!isSubscribed && (
                   <TouchableOpacity
@@ -237,9 +259,16 @@ export default function SubscriptionScreen() {
                     )}
                   </TouchableOpacity>
                 )}
+                
+                {isSubscribed && (
+                  <View style={styles.thankYouContainer}>
+                    <Text style={styles.thankYouText}>Thank you for your support!</Text>
+                    <Text style={styles.enjoyText}>Enjoy your premium features!</Text>
+                  </View>
+                )}
               </>
             )}
-          </LinearGradient>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -249,17 +278,38 @@ export default function SubscriptionScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFEBCD',
+  },
+  background: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  decorativeFlowers: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 1,
   },
   scrollView: {
     flex: 1,
+    zIndex: 2,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    paddingVertical: 20,
   },
   container: {
     flex: 1,
     padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  gradientBackground: {
-    borderRadius: 20,
+  card: {
+    width: '100%',
+    maxWidth: 450,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: {
@@ -273,13 +323,13 @@ const styles = StyleSheet.create({
   cardHeader: {
     padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-    backgroundColor: '#ffffff',
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#333333',
     textAlign: 'center',
   },
   loadingContainer: {
@@ -295,7 +345,7 @@ const styles = StyleSheet.create({
   successContainer: {
     backgroundColor: '#DCFCE7',
     margin: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
     borderColor: '#6EE7B7',
@@ -306,14 +356,42 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
+  statusBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 12,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(0,0,0,0.03)',
+  },
+  statusLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#555555',
+    marginRight: 8,
+  },
+  statusValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  activeText: {
+    color: '#059669',
+  },
+  inactiveText: {
+    color: '#9CA3AF',
+  },
+  flowerIconContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   planCard: {
     margin: 16,
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#64748B',
+    borderColor: '#FFE4B5',
+    shadowColor: '#E2A76F',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -329,18 +407,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   priceBadge: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#FFF0DB',
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: '#FFD599',
   },
   priceBadgeText: {
-    color: '#1E40AF',
+    color: '#B86E00',
     fontWeight: 'bold',
     fontSize: 16,
   },
   benefitsList: {
-    marginTop: 16,
+    marginTop: 20,
   },
   benefitItem: {
     flexDirection: 'row',
@@ -360,7 +440,7 @@ const styles = StyleSheet.create({
   statusCard: {
     margin: 16,
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
     borderWidth: 1,
     borderColor: '#E2E8F0',
@@ -421,7 +501,7 @@ const styles = StyleSheet.create({
   errorContainer: {
     backgroundColor: '#FEE2E2',
     margin: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
     borderColor: '#FECACA',
@@ -447,5 +527,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#0EA5E9',
     marginTop: 12,
+  },
+  thankYouContainer: {
+    alignItems: 'center',
+    padding: 16,
+    marginBottom: 16,
+  },
+  thankYouText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#059669',
+    marginBottom: 8,
+  },
+  enjoyText: {
+    fontSize: 16,
+    color: '#64748B',
   },
 });

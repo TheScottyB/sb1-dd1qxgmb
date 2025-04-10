@@ -7,11 +7,14 @@ import { useState, useEffect } from 'react';
 import Constants from 'expo-constants';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
+import { FlowerField } from '@/src/components/FlowerField';
 
 export default function HomeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const [flowerCount, setFlowerCount] = useState(0);
 
   useEffect(() => {
     // Check if user is signed in
@@ -19,6 +22,19 @@ export default function HomeScreen() {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         setUser(data.session.user);
+        
+        // Check if the user has an active subscription
+        try {
+          const { data: subscriptionData } = await supabase
+            .from('stripe_user_subscriptions')
+            .select('subscription_status')
+            .eq('user_id', data.session.user.id)
+            .maybeSingle();
+            
+          setIsPremium(subscriptionData?.subscription_status === 'active');
+        } catch (error) {
+          console.error('Error checking subscription status:', error);
+        }
       }
     };
     
@@ -107,88 +123,112 @@ export default function HomeScreen() {
     }
   };
 
+  // Track flower planting
+  const handleFlowerPlanted = () => {
+    setFlowerCount(prev => prev + 1);
+    
+    // Give haptic feedback on real devices
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <LinearGradient
-          colors={['#4C669F', '#3B5998', '#192F6A']}
-          style={styles.gradient}>
-          <View style={styles.header}>
-            <Text style={styles.welcomeText}>
-              {user ? `Welcome, ${user.email?.split('@')[0]}` : 'Welcome'}
-            </Text>
-            {!user && (
-              <Link href="/login" style={styles.loginLink}>
-                <Text style={styles.loginText}>Login</Text>
-              </Link>
-            )}
-          </View>
-          
-          <View style={styles.content}>
-            <Text style={styles.titleText}>Premium App</Text>
-            <Text style={styles.subtitle}>
-              Unlock amazing features with our subscription
-            </Text>
-            
-            {error && (
-              <BlurView intensity={80} tint="light" style={styles.errorContainer}>
-                <Text style={styles.errorText}>{error}</Text>
-              </BlurView>
-            )}
-            
-            <View style={styles.featuresContainer}>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureTitle}>✓ Premium Content</Text>
-                <Text style={styles.featureDescription}>Access to exclusive premium content</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureTitle}>✓ No Ads</Text>
-                <Text style={styles.featureDescription}>Enjoy an ad-free experience</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureTitle}>✓ Priority Support</Text>
-                <Text style={styles.featureDescription}>Get help when you need it</Text>
-              </View>
-            </View>
-            
-            <View style={styles.buttonContainer}>
-              <Link href="/subscription" onPress={handleSubscribe}>
-                <TouchableOpacity
-                  style={[
-                    styles.subscribeButton,
-                    Platform.select({
-                      web: styles.buttonWeb,
-                      default: {}
-                    })
-                  ]}>
-                  <Text style={styles.buttonText}>Subscribe Now</Text>
-                </TouchableOpacity>
-              </Link>
-            </View>
-            
-            <TouchableOpacity
-              style={[
-                styles.donateButton,
-                Platform.select({
-                  web: styles.buttonWeb,
-                  default: {}
-                }),
-                loading && styles.buttonDisabled
-              ]}
-              onPress={handleDonate}
-              disabled={loading}>
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Text style={styles.buttonText}>Support Us</Text>
+      <View style={styles.container}>
+        <FlowerField 
+          count={isPremium ? 10 : 5}
+          isPremium={isPremium}
+          maxFlowers={isPremium ? 50 : 15}
+          onAddFlower={handleFlowerPlanted}
+        />
+        
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <BlurView intensity={80} tint="light" style={styles.contentWrapper}>
+            <View style={styles.header}>
+              <Text style={styles.welcomeText}>
+                {user ? `Welcome, ${user.email?.split('@')[0]}` : 'Welcome to the Sandbox'}
+              </Text>
+              {!user && (
+                <Link href="/login" style={styles.loginLink}>
+                  <Text style={styles.loginText}>Login</Text>
+                </Link>
               )}
-            </TouchableOpacity>
-          </View>
-        </LinearGradient>
-      </ScrollView>
+            </View>
+            
+            <View style={styles.content}>
+              <Text style={styles.titleText}>Play in the Sandbox</Text>
+              <Text style={styles.subtitle}>
+                Tap anywhere to plant flowers {isPremium && "- Premium Mode Active!"}
+              </Text>
+              
+              <Text style={styles.flowerCount}>
+                Flowers planted: {flowerCount}
+              </Text>
+              
+              {error && (
+                <BlurView intensity={80} tint="light" style={styles.errorContainer}>
+                  <Text style={styles.errorText}>{error}</Text>
+                </BlurView>
+              )}
+              
+              <View style={styles.featuresContainer}>
+                <View style={styles.featureItem}>
+                  <Text style={styles.featureTitle}>✓ Beautiful Flowers</Text>
+                  <Text style={styles.featureDescription}>Plant different types of flowers in your sandbox</Text>
+                </View>
+                <View style={styles.featureItem}>
+                  <Text style={styles.featureTitle}>✓ {isPremium ? 'Premium Colors (Active)' : 'Premium Colors'}</Text>
+                  <Text style={styles.featureDescription}>Subscribe for unique flower colors and varieties</Text>
+                </View>
+                <View style={styles.featureItem}>
+                  <Text style={styles.featureTitle}>✓ {isPremium ? 'Extra Flowers (Active)' : 'Extra Flowers'}</Text>
+                  <Text style={styles.featureDescription}>Plant up to {isPremium ? '50' : '15'} flowers in your garden</Text>
+                </View>
+              </View>
+              
+              <View style={styles.buttonContainer}>
+                <Link href="/subscription" onPress={handleSubscribe}>
+                  <TouchableOpacity
+                    style={[
+                      styles.subscribeButton,
+                      Platform.select({
+                        web: styles.buttonWeb,
+                        default: {}
+                      }),
+                      isPremium && styles.subscribedButton
+                    ]}>
+                    <Text style={styles.buttonText}>
+                      {isPremium ? 'Premium Active' : 'Subscribe Now'}
+                    </Text>
+                  </TouchableOpacity>
+                </Link>
+              </View>
+              
+              <TouchableOpacity
+                style={[
+                  styles.donateButton,
+                  Platform.select({
+                    web: styles.buttonWeb,
+                    default: {}
+                  }),
+                  loading && styles.buttonDisabled
+                ]}
+                onPress={handleDonate}
+                disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text style={styles.buttonText}>Support Us</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </BlurView>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -196,20 +236,29 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#192F6A',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
+    backgroundColor: '#FFEBCD',
   },
   container: {
     flex: 1,
+    position: 'relative',
   },
-  gradient: {
+  scrollView: {
     flex: 1,
-    minHeight: Platform.OS === 'web' ? '100%' : undefined,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    maxHeight: 500,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+  },
+  contentWrapper: {
+    margin: 16,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   header: {
     flexDirection: 'row',
@@ -217,9 +266,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
   welcomeText: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -227,53 +278,57 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   loginText: {
-    color: '#FFFFFF',
+    color: '#007AFF',
     fontSize: 16,
     fontWeight: '600',
   },
   content: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
   },
   titleText: {
-    fontSize: 48,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#333333',
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#FFFFFF',
+    fontSize: 16,
+    color: '#555555',
     textAlign: 'center',
-    opacity: 0.9,
-    marginBottom: 32,
+    marginBottom: 12,
+  },
+  flowerCount: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4A6FA5',
+    marginBottom: 24,
+    textAlign: 'center',
   },
   featuresContainer: {
     width: '100%',
     maxWidth: 400,
-    marginBottom: 32,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
     borderRadius: 16,
     padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
   featureItem: {
     marginBottom: 16,
   },
   featureTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#333333',
     marginBottom: 4,
   },
   featureDescription: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 14,
+    color: '#666666',
   },
   buttonContainer: {
     marginBottom: 16,
@@ -291,6 +346,9 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     width: '100%',
+  },
+  subscribedButton: {
+    backgroundColor: '#5AC8FA',
   },
   donateButton: {
     backgroundColor: '#34C759',

@@ -18,12 +18,33 @@
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to let you take profile pictures.",
         "UIBackgroundModes": [
-          "remote-notification",
-          "remote-notification",
-          "remote-notification",
           "remote-notification"
         ],
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "playsandbox"
+            ]
+          }
+        ],
+        "NSUserTrackingUsageDescription": "This allows us to provide a better app experience by understanding how you use the app.",
+        "UIRequiresFullScreen": true,
+        "LSApplicationQueriesSchemes": [
+          "https",
+          "http"
+        ]
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "requireFullScreen": true,
+      "associatedDomains": [],
+      "appStoreUrl": "https://apps.apple.com/app/id6477183822",
+      "privacyManifestUrl": "https://your-domain.com/privacy-manifest.json",
+      "accessibilityInfo": {
+        "voiceOverEnabled": true,
+        "dynamicTypeEnabled": true
       }
     },
     "android": {
@@ -42,14 +63,6 @@
     "experiments": {
       "typedRoutes": true
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "splash": {
-      "image": "./assets/images/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "extra": {
       "router": {
         "origin": false
@@ -59,11 +72,32 @@
       }
     },
     "owner": "djscottyb",
-    "runtimeVersion": {
-      "policy": "appVersion"
+    "privacy": "public",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "splash": {
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
     },
     "updates": {
-      "url": "https://u.expo.dev/1eb49bf1-1ea0-490d-8ebc-992e30972908"
+      "enabled": true,
+      "fallbackToCacheTimeout": 0
+    },
+    "privacyPolicy": "https://your-domain.com/privacy-policy",
+    "termsOfService": "https://your-domain.com/terms",
+    "supportUrl": "https://your-domain.com/support",
+    "appStoreConfig": {
+      "categories": ["Entertainment", "Games"],
+      "keywords": "sandbox, flowers, play, relaxation, garden",
+      "ageRating": "4+",
+      "copyright": "© 2024 Scott Beilfuss"
     }
   }
 }
