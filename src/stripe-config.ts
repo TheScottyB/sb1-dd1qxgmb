@@ -1,19 +1,19 @@
-// PRODUCTION CONFIGURATION - LIVE MODE
+// LIVE MODE CONFIGURATION - WITH ACTUAL PRODUCT IDs
 export const products = {
   sandbox: {
-    id: 'prod_YourLiveProductID', // Replace with your actual live product ID
+    id: 'prod_S6e967ZpzPhGdd', // "A nice sandbox to play in" product
     name: 'Premium Access',
     description: 'Get full access to all premium features',
     price: '$4.99/month',
-    priceId: 'price_YourLivePriceID', // Replace with your actual live price ID
+    priceId: 'price_1RCQr6DesriQyUxd0aR0MNGG', // Sandbox subscription price ID
     mode: 'subscription' as const,
   },
   donation: {
-    id: 'prod_YourLiveDonationID', // Replace with your actual live donation product ID
+    id: 'prod_S6eB9eAVlOPA2N', // "Donation to the cause" product
     name: 'Support Our App',
     description: 'Make a one-time donation to support our app development',
     price: 'Any amount',
-    priceId: 'price_YourLiveDonationPriceID', // Replace with your actual live donation price ID
+    priceId: 'price_1RCQskDesriQyUxdWlqf7eQZ', // Donation payment price ID
     mode: 'payment' as const,
   },
 } as const;

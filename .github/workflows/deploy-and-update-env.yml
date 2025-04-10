@@ -1,0 +1,76 @@
+name: Deploy and Update Environment Variables
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/**'
+      - '.env.supabase.ci'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to (production, staging)'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  deploy-functions:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+        
+      - name: Login to Supabase
+        run: echo ${{ secrets.SUPABASE_ACCESS_TOKEN }} | supabase login
+        
+      - name: Deploy Supabase Functions
+        run: |
+          supabase functions deploy stripe-checkout --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+          supabase functions deploy stripe-checkout-anonymous --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+          supabase functions deploy stripe-webhook --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+        
+      - name: Update Environment Variables
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+        run: |
+          if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
+            # Use test mode for staging
+            echo "Using Stripe test mode for staging environment"
+            supabase functions env set STRIPE_SECRET_KEY=${{ secrets.STRIPE_TEST_SECRET_KEY }} --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+            supabase functions env set STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_TEST_WEBHOOK_SECRET }} --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+          else
+            # Use live mode for production
+            echo "Using Stripe live mode for production environment"
+            supabase functions env set STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }} --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+            supabase functions env set STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }} --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+          fi
+          
+          # Set other environment variables if needed
+          # supabase functions env set OTHER_VAR=${{ secrets.OTHER_VAR }} --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+          
+      - name: Verify Environment Setup
+        run: |
+          echo "Environment variables have been set up for ${{ github.event.inputs.environment || 'production' }} environment"
+          echo "Function deployment completed"

@@ -2,6 +2,10 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
+// Import Stripe types
+type StripeEvent = any;
+type StripeCheckoutSession = any;
+
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
 const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
 const stripe = new Stripe(stripeSecret);
@@ -30,10 +34,10 @@ Deno.serve(async (req) => {
     const body = await req.text();
 
     // verify the webhook signature
-    let event: Stripe.Event;
+    let event: StripeEvent;
 
     try {
-      event = await stripe.webhooks.constructEventAsync(body, signature, stripeWebhookSecret);
+      event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret);
     } catch (error: any) {
       console.error(`Webhook signature verification failed: ${error.message}`);
       return new Response(`Webhook signature verification failed: ${error.message}`, { status: 400 });
@@ -48,7 +52,7 @@ Deno.serve(async (req) => {
   }
 });
 
-async function handleEvent(event: Stripe.Event) {
+async function handleEvent(event: StripeEvent) {
   const stripeData = event?.data?.object ?? {};
 
   if (!stripeData) {
@@ -72,14 +76,14 @@ async function handleEvent(event: Stripe.Event) {
     let isSubscription = true;
 
     if (event.type === 'checkout.session.completed') {
-      const { mode } = stripeData as Stripe.Checkout.Session;
+      const { mode } = stripeData as StripeCheckoutSession;
 
       isSubscription = mode === 'subscription';
 
       console.info(`Processing ${isSubscription ? 'subscription' : 'one-time payment'} checkout session`);
     }
 
-    const { mode, payment_status } = stripeData as Stripe.Checkout.Session;
+    const { mode, payment_status } = stripeData as StripeCheckoutSession;
 
     if (isSubscription) {
       console.info(`Starting subscription sync for customer: ${customerId}`);
@@ -93,7 +97,7 @@ async function handleEvent(event: Stripe.Event) {
           amount_subtotal,
           amount_total,
           currency,
-        } = stripeData as Stripe.Checkout.Session;
+        } = stripeData as StripeCheckoutSession;
 
         // Insert the order into the stripe_orders table
         const { error: orderError } = await supabase.from('stripe_orders').insert({

@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
-    minHeight: Platform.OS === 'web' ? '100vh' : undefined,
+    minHeight: Platform.OS === 'web' ? '100%' : undefined,
   },
   header: {
     flexDirection: 'row',
@@ -326,14 +326,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
-  buttonWeb: {
+  buttonWeb: Platform.OS === 'web' ? {
     cursor: 'pointer',
-    transition: 'all 0.2s ease-in-out',
-    ':hover': {
-      opacity: 0.9,
-      transform: 'translateY(-2px)',
-    },
-  },
+    // Web-specific styles need to be handled differently
+    // since React Native StyleSheet doesn't support some web properties
+  } : {},
   buttonText: {
     color: '#FFFFFF',
     fontSize: 18,
