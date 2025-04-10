@@ -11,3 +11,7 @@ jobs:
     params:
       platform: ios
       profile: production
+      # App configured with:
+      # - Name: "Play in the Sandbox Looking at Flowers"
+      # - Bundle ID: "com.djscottyb.playsandbox"
+      # - Apple App Store ID: "6477183822"

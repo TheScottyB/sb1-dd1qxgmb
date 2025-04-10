@@ -53,7 +53,16 @@ eas workflow:run update-production.yml
    - Follow the UI to install the GitHub app
    - Select this GitHub repository and connect it
 
-2. All workflow files are configured in the `.eas/workflows/` directory
+2. App configuration:
+   - Name: "Play in the Sandbox Looking at Flowers"
+   - Description: "playinginthesandbox"
+   - iOS bundle ID: "com.djscottyb.playsandbox" (explicit)
+   - Android package name: "com.djscottyb.playsandbox"
+   - App ID Prefix: "3X872JR6P3" (Team ID)
+   - App Store Connect App ID: "6477183822"
+   - Apple ID: "beilsco@gmail.com"
+
+3. All workflow files are configured in the `.eas/workflows/` directory
 
 ## Running Workflows Manually
 

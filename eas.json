@@ -10,26 +10,29 @@
       "ios": {
         "simulator": true,
         "resourceClass": "m-medium"
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
       "ios": {
         "resourceClass": "m-medium"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "distribution": "store",
       "ios": {
         "resourceClass": "m-medium"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {
     "production": {
       "ios": {
         "appleId": "beilsco@gmail.com",
-        "ascAppId": "YOUR_APP_STORE_CONNECT_APP_ID",
+        "ascAppId": "6477183822",
         "appleTeamId": "3X872JR6P3"
       }
     }

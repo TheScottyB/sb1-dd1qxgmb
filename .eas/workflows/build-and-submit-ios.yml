@@ -11,6 +11,11 @@ jobs:
     params:
       platform: ios
       profile: production
+      # App configured with:
+      # - Name: "Play in the Sandbox Looking at Flowers"
+      # - Description: "playinginthesandbox"
+      # - Bundle ID: "com.djscottyb.playsandbox" (explicit)
+      # - App ID Prefix: "3X872JR6P3" (Team ID)
   
   submit:
     name: Submit iOS
@@ -19,3 +24,12 @@ jobs:
     params:
       platform: ios
       profile: production
+      # App configured with:
+      # - Name: "Play in the Sandbox Looking at Flowers"
+      # - Description: "playinginthesandbox"
+      # - Bundle ID: "com.djscottyb.playsandbox" (explicit)
+      # - App ID Prefix: "3X872JR6P3" (Team ID)
+      # The following parameters are configured in eas.json under submit.production.ios
+      # - appleId: "beilsco@gmail.com"
+      # - ascAppId: "6477183822"
+      # - appleTeamId: "3X872JR6P3"
